@@ -9,6 +9,10 @@ use columnq::datafusion::arrow::util::pretty;
 use columnq::table::parse_table_uri_arg;
 use columnq::{encoding, ColumnQ, ExecutionConfig};
 
+#[cfg(snmalloc)]
+#[global_allocator]
+static ALLOC: snmalloc_rs::SnMalloc = snmalloc_rs::SnMalloc;
+
 fn history_path() -> anyhow::Result<PathBuf> {
     let mut home =
         dirs::home_dir().ok_or_else(|| anyhow!("Failed to locate user home directory"))?;
@@ -156,9 +160,9 @@ async fn main() -> anyhow::Result<()> {
 
     let app = clap::App::new("Columnq")
         .version("0.0.1")
+        .author("QP Hou")
         .about("OLAP the Unix way.")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .setting(clap::AppSettings::DisableVersionForSubcommands)
         .subcommand(
             clap::App::new("sql")
                 .about("Query tables with SQL")
