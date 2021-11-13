@@ -1,4 +1,3 @@
-use axum::http::Method;
 use std::net::TcpListener;
 use std::sync::Arc;
 
@@ -28,13 +27,7 @@ impl Application {
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
         let routes = api::routes::register_app_routes();
-        let cors = tower_http::cors::CorsLayer::new()
-            .allow_methods(vec![Method::GET, Method::POST, Method::OPTIONS])
-            .allow_origin(tower_http::cors::Any)
-            .allow_credentials(false);
-        let mut app = routes
-            .layer(axum::AddExtensionLayer::new(Arc::new(handler_ctx)))
-            .layer(cors);
+        let mut app = routes.layer(axum::AddExtensionLayer::new(Arc::new(handler_ctx)));
         if log::log_enabled!(log::Level::Info) {
             // only add logger layer if level >= INFO
             app = app.layer(HttpLoggerLayer::new());
